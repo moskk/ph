@@ -103,10 +103,10 @@ public:
     unsigned int raw_size(0),pass_hash_in_file(0);
     file.read((char*)&raw_size, sizeof(raw_size));
     if(file.fail())
-        return false;
+      return false;
     file.read((char*)&pass_hash_in_file, sizeof(pass_hash_in_file));
     if(file.fail())
-        return false;
+      return false;
     crypt(raw_size);
     unsigned int pass_hash_in_mem = mk_hash(passkey);
     crypt(pass_hash_in_mem);

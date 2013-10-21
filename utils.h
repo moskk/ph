@@ -25,6 +25,6 @@ unsigned int mk_hash(const std::string& s);
 
 std::string prompt(const std::string& msg = "");
 
-
+bool get_yn();
 
 #endif // UTILS_H

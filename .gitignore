@@ -11,3 +11,15 @@
 *.lai
 *.la
 *.a
+
+# QtCreator stuff
+*MakeFile*
+*debug*
+*release*
+*.user
+*.exe
+*.ilk
+*.pdb
+*.obj
+*.manifest
+*phbase*

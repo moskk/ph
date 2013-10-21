@@ -87,18 +87,13 @@ string prompt(const string& msg)
   return s;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bool get_yn()
+{
+  string s;
+  while(s.empty())
+  {
+    cout << "[y/n] ";
+    cin >> s;
+  }
+  return s=="y" || s=="Y";
+}

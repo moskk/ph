@@ -39,10 +39,10 @@ bool load_db(memomap& memos, undecrypted& raw, string& passkey)
         memos.insert(pair<string,string>(*ssi, pm.val()));
       }
     }
-	else
-	{
-		raw.push_back(pm);
-	}
+    else
+    {
+      raw.push_back(pm);
+    }
   }
   return true;
 }
@@ -81,17 +81,6 @@ bool get_opt(size_t ind, string& opt)
   }
   opt = options[ind];
   return true;
-}
-
-bool get_yn()
-{
-  string s;
-  while(s.empty())
-  {
-    cout << "[y/n] ";
-    cin >> s;
-  }
-  return s=="y" || s=="Y";
 }
 
 void use_max(size_t& dst, const size_t& src)
@@ -158,18 +147,18 @@ bool exec_commands(memomap&memos)
     {
       cout << "you requested addition to base" << endl;
       int pass_ind = op_ind(PASS);
-	  string new_pass;
+      string new_pass;
       if(pass_ind < 0)
       {
         cout << "no value specified" << endl;
         new_pass = prompt("input new value: ");
-		if(new_pass.empty())
-		{
+        if(new_pass.empty())
+        {
           cout << "bad value" << endl;
           return false;
-		}
+        }
       }
-	  else if(!get_opt(pass_ind + 1, new_pass))
+      else if(!get_opt(pass_ind + 1, new_pass))
       {
         cout << "can't read value" << endl;
         return false;
@@ -181,17 +170,17 @@ bool exec_commands(memomap&memos)
         cout << "no key specified" << endl;
         new_key = prompt("input new key: ");
         if(new_key.empty())
-		{
+        {
           cout << "bad key" << endl;
-		  return false;
-		}
+          return false;
+        }
       }
       else if(!get_opt(key_ind + 1, new_key))
       {
         cout << "can't read key" << endl;
         return false;
       }
-           cout << "value: [" << new_pass << "]" << endl
+      cout << "value: [" << new_pass << "]" << endl
            << "key: [" << new_key << "]" << endl
            << "is it all correct? ";
       if(!get_yn())
@@ -215,13 +204,18 @@ bool exec_commands(memomap&memos)
     {
       cout << "you requested getting value by key" << endl;
       int key_ind = op_ind(KEY);
+      string rq_key;
       if(key_ind < 0)
       {
-        cout << "no keys specified" << endl;
-        return false;
+        cout << "no key specified" << endl;
+        rq_key = prompt("input new key: ");
+        if(rq_key.empty())
+        {
+          cout << "bad key" << endl;
+          return false;
+        }
       }
-      string rq_key;
-      if(!get_opt(key_ind + 1, rq_key))
+      else if(!get_opt(key_ind + 1, rq_key))
       {
         cout << "can't read key" << endl;
         return false;
@@ -234,7 +228,7 @@ bool exec_commands(memomap&memos)
       {
         cout << "show first " << symbols << " symbols" << endl;
       }
-/*      cout << "is it all correct? ";
+      /*      cout << "is it all correct? ";
       if(!get_yn())
       {
         cout << "operation canceled" << endl;
@@ -254,24 +248,30 @@ bool exec_commands(memomap&memos)
     {
       cout << "you requested removing value by key";
       int key_ind = op_ind(KEY);
+      string rm_key;
       if(key_ind < 0)
       {
-        cout << endl << "no keys specified" << endl;
-        return false;
+        cout << endl << "no key specified" << endl;
+        rm_key = prompt("input key to remove: ");
+        if(rm_key.empty())
+        {
+          cout << "bad key" << endl;
+          return false;
+        }
       }
-      string key;
-      if(!get_opt(key_ind + 1, key))
+      else if(!get_opt(key_ind + 1, rm_key))
       {
-        cout << endl << "can't read key" << endl;
+        cout << "can't read key" << endl;
         return false;
       }
-      cout << " [" << key << "]" << endl;
+      int sym_ind = 0;
+      int symbols = read_symbols(sym_ind);
       cout << "matched pairs:" << endl;
-      print_matched(memos, key, -1);
-      pair<memomap::iterator,memomap::iterator> matches = memos.equal_range(key);
+      print_matched(memos, rm_key, symbols);
+      pair<memomap::iterator,memomap::iterator> matches = memos.equal_range(rm_key);
       for(memomap::iterator it = matches.first; it != matches.second;)
       {
-        cout << "confirm removing of '" << (*it).first << "' => [" << (*it).second << "] ";
+        cout << "confirm removing of '" << (*it).first << "' => [" << smooth((*it).second, symbols) << "] ";
         if(get_yn())
         {
           memomap::iterator tit = it;
@@ -297,7 +297,7 @@ bool exec_commands(memomap&memos)
       cout << "you requested to list all values" << endl;
       int sym_ind = 0;
       int symbols = read_symbols(sym_ind);
-/*      cout << "you requested to list all values" << endl
+      /*      cout << "you requested to list all values" << endl
            << "right? ";
       if(!get_yn())
       {
@@ -337,26 +337,68 @@ bool save_db(memomap& memos, undecrypted& raw, const string& key)
         return false;
       }
     }
-	for(undecrypted::iterator uit = raw.begin(); uit != raw.end(); ++uit)
-	{
-        (*uit).write(bv, key);
-	}
+    for(undecrypted::iterator uit = raw.begin(); uit != raw.end(); ++uit)
+    {
+      (*uit).write(bv, key);
+    }
     ofstream os(DBFILE.data(), ios_base::binary);
     if(!os.is_open())
     {
       return false;
     }
-    os.write(&bv.front(),bv.size());
+    if(bv.size())
+    {
+      os.write(&bv.front(),bv.size());
+    }
   }
   return true;
 }
 
+bool got_commands()
+{
+  typedef vector<string> vs;
+  vs cmds;
+  cmds.push_back(ADD);
+  cmds.push_back(GET);
+  cmds.push_back(LIST);
+  cmds.push_back(RM);
+  for(vs::iterator i = cmds.begin(); i != cmds.end(); ++i)
+  {
+    if(op_ind(*i) >= 1)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+string usage()
+{
+  string usge;
+  usge.append("add key-value pair in database: \n");
+  usge.append("\tph -add \n");
+  usge.append("get key-value pair by key: \n");
+  usge.append("\tph -get \n");
+  usge.append("list all key-value key crypted by current passkey: \n");
+  usge.append("\tph -list \n");
+  usge.append("remove key-value pair by key: \n");
+  usge.append("\tph -rm \n");
+  return usge;
+}
+
 int main(int argc, char *argv[])
 {
+  cout << "\nsee https://github.com/moskk/ph for more information and newest versions\n\n";
+  parse_options(argc, argv);
+  if(!got_commands())
+  {
+    cout << usage();
+    cout << "no command line options given, exiting" << endl;
+    return 1;
+  }
   memomap memos;
   undecrypted raw;
   string key = prompt_key();
-  parse_options(argc, argv);
   if(!load_db(memos, raw, key))
   {
     cout << "failed to load values database" << endl;
