@@ -103,7 +103,7 @@ void print_matched(const memomap& memos, const string& key = "", int symbols = -
 }
 
 #define ADD "-add"
-#define PASS "-pass"
+#define PASS "-val"
 #define KEY "-key"
 
 #define GET "-get"
@@ -208,7 +208,7 @@ bool exec_commands(memomap&memos)
       if(key_ind < 0)
       {
         cout << "no key specified" << endl;
-        rq_key = prompt("input new key: ");
+        rq_key = prompt("input key: ");
         if(rq_key.empty())
         {
           cout << "bad key" << endl;
@@ -378,11 +378,12 @@ string usage()
   usge.append("add key-value pair in database: \n");
   usge.append("\tph -add \n");
   usge.append("get key-value pair by key: \n");
-  usge.append("\tph -get \n");
+  usge.append("\tph -get -sym <n symbols>\n");
   usge.append("list all key-value key crypted by current passkey: \n");
-  usge.append("\tph -list \n");
+  usge.append("\tph -list -sym <n symbols>\n");
   usge.append("remove key-value pair by key: \n");
-  usge.append("\tph -rm \n");
+  usge.append("\tph -rm -sym <n symbols>\n");
+  usge.append("<n symbols> - number of first printed symbols of value strings\n");
   return usge;
 }
 
