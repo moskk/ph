@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <stdlib.h>
+
 #include "utils.h"
 
 //class bytevector : public vector<char>
@@ -46,7 +48,13 @@ static const char alphanum[] =
     "abcdefghijklmnopqrstuvwxyz";
 char mk_rand_ch()
 {
-  return alphanum[rand() % sizeof(alphanum)];
+  return alphanum[
+        #ifdef _WIN32
+          rand()
+        #else
+          random()
+        #endif
+          % sizeof(alphanum)];
 }
 
 #define MAX_SALT_LEN 0xff
